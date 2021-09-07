@@ -6,6 +6,8 @@ from fvcore.common.timer import Timer
 from fvcore.common.file_io import PathManager
 import io
 import logging
+from detectron2.data.datasets import register_coco_instances
+
 
 logger = logging.getLogger(__name__)
 
@@ -19,6 +21,20 @@ _SPLITS_COCO_FORMAT["coco"] = {
     "coco_2017_for_voc20": (
         "coco",
         "coco/annotations/google/instances_unlabeledtrainval20class.json",
+    ),
+    "food_163_unlabel": (
+        "/home/jovyan/data/filtered-food-jpg",
+        "/home/jovyan/workspace/ml_mg/json_data/163train_unlabel.json",
+    ),
+}
+_LABELED_COCO_FORMAT = {
+    "food_163": (
+        "/home/jovyan/data/filtered-food-jpg",
+        "/home/jovyan/workspace/ml_mg/json_data/163train.json",
+    ),
+    "food_163_test": (
+        "/home/jovyan/data/filtered-food-jpg",
+        "/home/jovyan/workspace/ml_mg/json_data/163test.json",
     ),
 }
 
@@ -101,5 +117,17 @@ def load_coco_unlabel_json(
     return dataset_dicts
 
 
+##food dataset add
+def register_coco_custom_label(root):
+    for key, (image_root, json_file) in _LABELED_COCO_FORMAT.items():
+        meta = {}
+        register_coco_instances(
+            key, meta, os.path.join(root, json_file), os.path.join(root, image_root)
+        )
+
+
 _root = os.getenv("DETECTRON2_DATASETS", "datasets")
 register_coco_unlabel(_root)
+
+# food dataset add
+register_coco_custom_label(_root)
